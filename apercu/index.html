@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      Politique de securite du contenu (exigence E2 de l'audit du 8 septembre 2026).
+      script-src porte 'wasm-unsafe-eval' parce que compiler un module WebAssembly, meme depuis
+      des octets deja en memoire, reste soumis a script-src : sans ce jeton, un navigateur qui
+      applique la politique refuse la compilation de PDFium. 'unsafe-eval' couvrirait aussi eval
+      et Function, dont ce lot n'a aucun besoin. connect-src autorise api.anthropic.com par
+      anticipation du lot S4 : aucun appel n'existe encore, ce que le parcours de bout en bout
+      prouve en listant les requetes hors origine.
+
+      style-src porte 'unsafe-inline', ajoute par la tache 11 apres MESURE : sans ce jeton,
+      Chromium refusait CHAQUE style en ligne de l'application et la rendait entierement sans mise
+      en forme (message « Applying inline style violates the following Content Security Policy
+      directive 'default-src 'self'' », releve dans la console au premier rendu reel de
+      l'assemblage). Deux familles de styles en ligne sont en cause, et aucune des deux ne peut
+      devenir une regle statique :
+      - la GEOMETRIE calculee au moment du rendu (taille de la page a l'echelle courante, ancrage
+        du calque et de la barre flottante a la boite du run), qui depend du document ouvert et du
+        zoom, jamais d'une valeur connue a l'avance (contrainte 12 du lot) ;
+      - la feuille de style que le serveur de developpement injecte dans un element <style>.
+      Le risque que ce jeton ouvre est celui d'un style pose par du balisage venu d'ailleurs. Ce
+      chemin n'existe pas ici : aucune chaine du document, du journal ou du moteur n'est jamais
+      interpretee comme du balisage (exigence E13, sentinelle S9 de la tache 13), donc rien
+      d'exterieur ne peut poser un attribut style ni un element <style>. script-src reste
+      inchange : 'unsafe-inline' ne vaut que pour les styles, jamais pour le code.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; connect-src 'self' https://api.anthropic.com; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; worker-src 'self'; font-src 'self'; img-src 'self' blob: data:; object-src 'none'; base-uri 'none'"
+    />
+    <!-- Version d'essai : hors des moteurs de recherche tant que le fondateur ne l'a pas ouverte au public. -->
+    <meta name="robots" content="noindex, nofollow" />
+    <title>NouPDF</title>
+    <script type="module" crossorigin src="/noupdf/apercu/assets/index-DRWDv7tS.js"></script>
+    <link rel="stylesheet" crossorigin href="/noupdf/apercu/assets/index-DHiwHO0s.css">
+  </head>
+  <body>
+    <div id="racine"></div>
+  </body>
+</html>
